@@ -1,12 +1,15 @@
 import React from 'react';
 
+
+
 export default class Counter extends React.Component {
   constructor (props) {
     console.log('Constructor');
     super(props); // super allows us to refer to props using this.props
 
     this.state = {
-      counter: 0
+      counter: 0,
+      seed: 0
     };
 
     this.increment = () => {
@@ -17,16 +20,39 @@ export default class Counter extends React.Component {
     }
   }
 
+  static getDerivedStateFromProps (props, state) {
+    if(props.seed && state.seed !== props.seed) {
+      return {
+        seed: props.seed,
+        counter: props.seed
+      }
+    }
+    return null
+  }
+
   componentDidMount () { 
     // only shows up when component mounts.  Does not mount after rending
     console.log('Component did mount');
     console.log('----------------');
   }
 
-  shouldComponentUpdate (nextState, nextProps) {
+  shouldComponentUpdate (nextProps, nextState) {
     // Takes two parameters
     // Normally, React will determine if component should update but this can be controlled if needed.
+    if (nextProps.ignoreProp && this.props.ignoreProp !== nextState.ignoreProp) {
+      console.log("Should component update - no render");
+      return false
+    }
+    console.log("Should component update - render");
     return true
+  }
+
+  getSnapshotBeforeUpdate (prevProps, prevState){
+    // Happens before render.  Parameters are previous prop and prveState.
+    console.log('Get snapshot before update.')
+    return null
+    // This is what is being sent to ' component Did Update.
+    
   }
   
   render () {
@@ -36,6 +62,7 @@ export default class Counter extends React.Component {
       <div>
         <button onClick = {this.increment}>Increment</button>
         <button onClick = {this.decrement}>Decrement</button>
+        
         <div className="counter">
           Counter: {this.state.counter}
         </div>
@@ -48,5 +75,9 @@ export default class Counter extends React.Component {
     // Takes 3 parameters.
     console.log('component did update');
     console.log('--------------')
+  }
+  componentDidCatch (error, info) {
+    console.log("Component did catch");
+    
   }
 }
